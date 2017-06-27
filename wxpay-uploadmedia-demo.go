@@ -178,7 +178,7 @@ func main() {
 	newReq.Header.Set("Content-Type", w.FormDataContentType())
 
 	// Save a copy of this request for debugging.
-	requestDump, err := httputil.DumpRequest(newReq, true)
+	requestDump, err := httputil.DumpRequestOut(newReq, true)
 	if err != nil {
 		fmt.Println(err)
 	}
