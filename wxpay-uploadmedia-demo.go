@@ -116,6 +116,7 @@ func main() {
 
 	defer f.Close()
 
+	//file part
 	fw, err := w.CreateFormFile("media", file)
 	if err != nil {
 		log.Fatal(err)
@@ -140,18 +141,19 @@ func main() {
 	log.Println("Request in XML:\n", string(output))
 
 	// Add the other fields
-	// media_hash
-	if fw, err = w.CreateFormField("media_hash"); err != nil {
-		return
-	}
-	if _, err = fw.Write([]byte(uploadMediaRequest.MediaHash)); err != nil {
-		return
-	}
 	// mch_id
 	if fw, err = w.CreateFormField("mch_id"); err != nil {
 		return
 	}
 	if _, err = fw.Write([]byte(uploadMediaRequest.MchID)); err != nil {
+		return
+	}
+
+	// media_hash
+	if fw, err = w.CreateFormField("media_hash"); err != nil {
+		return
+	}
+	if _, err = fw.Write([]byte(uploadMediaRequest.MediaHash)); err != nil {
 		return
 	}
 
