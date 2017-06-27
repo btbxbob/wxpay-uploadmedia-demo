@@ -9,11 +9,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"strings"
 )
@@ -172,6 +174,13 @@ func main() {
 	newReq.Host = newReq.URL.Host
 	newReq.URL.Scheme = "https"
 	newReq.Header.Set("Content-Type", w.FormDataContentType())
+
+	// Save a copy of this request for debugging.
+	requestDump, err := httputil.DumpRequest(newReq, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	log.Println(string(requestDump))
 
 	var client *http.Client
 	caCertPool := x509.NewCertPool()
