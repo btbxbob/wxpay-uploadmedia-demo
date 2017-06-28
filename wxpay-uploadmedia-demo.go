@@ -9,13 +9,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"strings"
 )
@@ -126,9 +124,11 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	uploadMediaRequest.MediaHash = strings.ToUpper(hex.EncodeToString(md5h.Sum(nil)))
+
+	uploadMediaRequest.MediaHash = hex.EncodeToString(md5h.Sum(nil))
 	// calculate sign
 	var hashString = "mch_id=" + uploadMediaRequest.MchID + "&media_hash=" + uploadMediaRequest.MediaHash + "&key=" + config.Key
+	log.Println("to hash string: ",hashString)
 	hasher := md5.New()
 	hasher.Write([]byte(hashString))
 	uploadMediaRequest.Sign = strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
@@ -142,7 +142,8 @@ func main() {
 
 	// Add the other fields
 	// mch_id
-	if fw, err = w.CreateFormField("mch_id"); err != nil {
+	fw, err = w.CreateFormField("mch_id")
+	if  err != nil {
 		return
 	}
 	if _, err = fw.Write([]byte(uploadMediaRequest.MchID)); err != nil {
@@ -164,25 +165,13 @@ func main() {
 	if _, err = fw.Write([]byte(uploadMediaRequest.Sign)); err != nil {
 		return
 	}
+
 	// Don't forget to close the multipart writer.
 	// If you don't close it, your request will be missing the terminating boundary.
 	w.Close()
 
-	b.WriteTo(os.Stdout)
-
 	newReq, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/secapi/mch/uploadmedia", &b)
-	//newReq.Header = req.Header
-	newReq.URL.Host = "api.mch.weixin.qq.com"
-	newReq.Host = newReq.URL.Host
-	newReq.URL.Scheme = "https"
 	newReq.Header.Set("Content-Type", w.FormDataContentType())
-
-	// Save a copy of this request for debugging.
-	requestDump, err := httputil.DumpRequestOut(newReq, true)
-	if err != nil {
-		fmt.Println(err)
-	}
-	log.Println(string(requestDump))
 
 	var client *http.Client
 	caCertPool := x509.NewCertPool()
