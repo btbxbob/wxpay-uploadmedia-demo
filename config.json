@@ -1,0 +1,10 @@
+{
+		"mch_id": "",
+        "key": "",
+        "cert": {
+            "certfile": "apiclient_cert.pem",
+            "keyfile": "apiclient_key.pem",
+            "ca": "rootca.pem"
+        },
+        "img_file": "test.jpg"
+}
